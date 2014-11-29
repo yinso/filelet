@@ -1,4 +1,3 @@
-async = require 'async'
 vinyl = require 'vinyl'
 fs = require 'fs'
 path = require 'path'
@@ -45,9 +44,12 @@ loadFiles = (source, transform, cb) ->
   helper = (filePath, next) ->
     loadFile filePath, transform, next
   load = (sources) ->
-    async.map sources, helper, (err, files) ->
-      loglet.debug 'async.map.end', err, files
-      cb err, files 
+    funclet
+      .map(sources, helper)
+      .catch (err) ->
+        next err
+      .done (files) ->
+        next null, files
   if source instanceof Array
     load source
   else if typeof(source) == 'string'
@@ -81,7 +83,11 @@ saveFiles = (files, options, cb) ->
           writeFile file.path, file.contents, next
     else
       writeFile file.path, file.contents, next
-  async.each files, helper, cb
+  funclet
+    .each(files, heler)
+    .catch(cb)
+    .done () ->
+      cb null
   
 writeFile = (filePath, contents, options, cb) ->
   if arguments.length == 3
