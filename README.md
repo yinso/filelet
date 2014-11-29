@@ -46,4 +46,13 @@ Wrapper around [`mkdirp`](https://www.npmjs.org/package/mkdirp) module.
 
 Wrapping around `mkdirp` and `fs.writeFile`, so the intermediate non-existent directoreis are created prior to write.
 
+### `readdirRSync(dirPath)`
+
+### `cache()`
+
+A file cache to cache the loaded files until the file is modified.
+
+    var cache = filelet.cache()
+    cache.loadFile('/path/to/file', [function(file, next) { /* transform */ }, ]function(err, file) { ... });
+    cache.loadFiles(['/array/of/path/to/file', ...], [function (file, next) { /* transform */ } , ]function (err, files) { ... })
 

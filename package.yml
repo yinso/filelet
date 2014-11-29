@@ -2,11 +2,11 @@
 author: YC <yinso.chen@gmail.com>
 name: filelet
 description: A simple file-helper library
-version: 0.1.1
+version: 0.1.2
 repository:
   type: git
   url: git://github.com/yinso/filelet.git
-main: ./lib/helper
+main: ./lib/main
 engines:
   node: '>= 0.8.4'
 scripts:
@@ -18,12 +18,12 @@ dependencies:
   async: =0.9.0
   loglet: '>=0.1.0'
   vinyl: =0.4.5
-  #fs-extra: 
   glob: =4.2.1
   loglet: '>=0.1.2'
   funclet: '>=0.1.0'
   ncp: =1.0.1
   mkdirp: =0.5.0
+  #utilities: =1.0.4
 devDependencies:
   testlet: '>= 0.2.0'
   coffee-bean: =0.3.0

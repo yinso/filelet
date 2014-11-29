@@ -7,6 +7,7 @@ loglet = require 'loglet'
 ncp = require 'ncp'
 mkdirp = require 'mkdirp'
 functlet = require 'funclet'
+utilities = require 'utilities'
 
 readBuffer = (file, cb) ->
   fs.readFile file.path, (err, data) ->
@@ -144,6 +145,31 @@ move = (src, dest, cb) ->
     else
       fs.rename src, dest, cb
 
+readdirRSync = (dirPath) ->
+  helper = (currentDir, paths) ->
+    try 
+      files = fs.readdirSync currentDir
+      for file in files 
+        filePath = path.join currentDir, file
+        stat = fs.statSync filePath
+        if stat.isDirectory()
+          helper filePath, paths
+        else
+          paths.push filePath
+      paths
+    catch e 
+      # do nothing when we catch the error
+      paths
+  helper dirPath, []
+
+#readdirR = (dirPath, cb) ->
+#  helper = (currentDir, paths, next) ->
+#    fs.readdir currentDir, (err, files) ->
+#      if err
+#        next null, []
+#      else
+#        next null, 
+
 module.exports = 
   loadFiles: loadFiles
   loadFile: loadFile
@@ -156,6 +182,7 @@ module.exports =
   copy: copy
   mkdirp: mkdirP
   writeArray: writeArray
+  readdirRSync: readdirRSync
 
   
 
