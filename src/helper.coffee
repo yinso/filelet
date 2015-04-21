@@ -5,8 +5,8 @@ glob = require 'glob'
 loglet = require 'loglet'
 ncp = require 'ncp'
 mkdirp = require 'mkdirp'
-functlet = require 'funclet'
-utilities = require 'utilities'
+funclet = require 'funclet'
+_ = require 'underscore'
 
 readBuffer = (file, cb) ->
   fs.readFile file.path, (err, data) ->
@@ -168,6 +168,60 @@ readdirRSync = (dirPath) ->
       paths
   helper dirPath, []
 
+
+readdirR = (rootPath, options, cb) ->
+  if arguments.length == 2
+    cb = options
+    options = {}
+  result = []
+  filterPath = (filePath) ->
+    extname = path.extname(filePath)
+    if options.filter instanceof Array
+      if _.contains(options.filter, extname)
+        result.push filePath
+    else if typeof(options.filter) == 'string'
+      if extname == options.filter
+        result.push filePath
+    else
+      result.push filePath
+  makeTask = (filePath) ->
+    relPath = path.relative(rootPath, filePath)
+    (cb) ->
+      fs.stat filePath, (err, stat) ->
+        if err
+          cb err
+        else if stat.isDirectory()
+          helper filePath, (err, res) ->
+            if err
+              cb err
+            else
+              cb null, res
+        else
+          filterPath relPath
+          cb null, relPath
+  makeTasks = (dirName, files) ->
+    for fileName in files
+      makeTask path.join dirName, fileName
+  helper = (dirPath, cb) ->
+    funclet
+      .start (next) ->
+        fs.readdir dirPath, next
+      .then (files, next) ->
+        next null, makeTasks(dirPath, files)
+      .thenParallel()
+      .catch(cb)
+      .done (res) -> cb null
+    #fs.readdir dirPath, (err, files) ->
+    #  if err
+    #    cb err
+    #  else
+    #    async.parallel makeTasks(dirPath, files), cb
+  helper rootPath, (err, res) ->
+    if err
+      cb null, []
+    else
+      cb null, result
+
 #readdirR = (dirPath, cb) ->
 #  helper = (currentDir, paths, next) ->
 #    fs.readdir currentDir, (err, files) ->
@@ -189,6 +243,8 @@ module.exports =
   mkdirp: mkdirP
   writeArray: writeArray
   readdirRSync: readdirRSync
+  readdirR: readdirR
+
 
   
 
